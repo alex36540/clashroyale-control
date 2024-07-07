@@ -16,6 +16,12 @@ def on_press(key):
         raise Exception(key)
     
     original_pos = mouse_ctrl.position
+    print(original_pos)
+
+    # Check if y value is on the card, because if it is, it's possible that
+    # the mouse hasn't moved yet from a previous input
+    if (Y_VAL - 50) <= original_pos[1] <= (Y_VAL + 50):
+        return
 
     try:
         key_char = key.char
@@ -34,8 +40,12 @@ def on_press(key):
                 print('Key {0} pressed'.format(key))
                 return
         
-        # Click card and move back
-        mouse_ctrl.click(mouse.Button.left)
+        # Click card and move back (check if on card when clicking)
+        if (Y_VAL - 50) <= mouse_ctrl.position[1] <= (Y_VAL + 50):
+            mouse_ctrl.click(mouse.Button.left)
+
+        # Putting this twice seems to fix the issue of staying at the bottom
+        mouse_ctrl.position = original_pos
         mouse_ctrl.position = original_pos
 
     except Exception as e:
