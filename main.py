@@ -16,7 +16,6 @@ def on_press(key):
         raise Exception(key)
     
     original_pos = mouse_ctrl.position
-    print(original_pos)
 
     # Check if y value is on the card, because if it is, it's possible that
     # the mouse hasn't moved yet from a previous input
