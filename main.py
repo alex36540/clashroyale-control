@@ -3,21 +3,21 @@ from pynput import keyboard, mouse
 # Constants
 
 # default values for mouse positions
-card_1_x = 853
-card_2_x = 958
-card_3_x = 1066
-card_4_x = 1173
+card_1_pos = (853, 920)
+card_2_pos = (958, 920)
+card_3_pos = (1066, 920)
+card_4_pos = (1173, 920)
 
-y_val = 920
+click_count = 0
 
 mouse_ctrl = mouse.Controller()
 
 def on_press(key):
-    global card_1_x, card_2_x, card_3_x, card_4_x, y_val
+    global card_1_pos, card_2_pos, card_3_pos, card_4_pos
 
     # Quit case
     if key == keyboard.Key.esc:
-        raise Exception(key)
+        raise Exception("Program exited by pressing escape")
     
     original_pos = mouse_ctrl.position
 
@@ -32,16 +32,13 @@ def on_press(key):
         # Move mouse to correct card
         match key_char:
             case '1':
-                mouse_ctrl.position = (card_1_x, y_val)
+                mouse_ctrl.position = card_1_pos
             case '2':
-                mouse_ctrl.position = (card_2_x, y_val)
+                mouse_ctrl.position = card_2_pos
             case '3':
-                mouse_ctrl.position = (card_3_x, y_val)
+                mouse_ctrl.position = card_3_pos
             case '4':
-                mouse_ctrl.position = (card_4_x, y_val)
-            case '<67>':
-                 # Pressing Ctrl+Alt+C
-                 num_calibration()
+                mouse_ctrl.position = card_4_pos
             case _:
                 print('Key {0} pressed'.format(key))
                 return
@@ -60,29 +57,33 @@ def on_press(key):
     except Exception as e:
         if key == keyboard.Key.esc:
             print('Exiting program')
+        elif key == keyboard.Key.f9:
+            # CALIBRATION
+            num_calibration()
         else:
             print(e)
 
 ### Calibrate number keys to match with the center of all cards
 def num_calibration():
-    global card_1_x, card_2_x, card_3_x, card_4_x, y_val
+    global card_1_pos, card_2_pos, card_3_pos, card_4_pos
+
     print("Calibration mode")
-    input("Press enter with mouse centered on card 1")
-    pos = mouse_ctrl.position
-    card_1_x = pos[0]
-    y_val = pos[1]
+    with mouse.Listener(on_click=calibration_on_click) as listener:
+        listener.join()
 
-    input("Press enter with mouse centered on card 2")
-    pos = mouse_ctrl.position
-    card_2_x = pos[0]
+def calibration_on_click(x, y, button, pressed):
+    global click_count
 
-    input("Press enter with mouse centered on card 3")
-    pos = mouse_ctrl.position
-    card_3_x = pos[0]
-
-    input("Press enter with mouse centered on card 4")
-    pos = mouse_ctrl.position
-    card_4_x = pos[0]
+    print()
+    # on release
+    if not pressed:
+        match button.name:
+            case 'left':
+                print(click_count)
+                click_count += 1
+            case 'right':
+                click_count = 0
+                return False # This stops the mouse event listener
 
 
 def main():
