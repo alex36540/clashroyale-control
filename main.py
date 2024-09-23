@@ -65,25 +65,39 @@ def on_press(key):
 
 ### Calibrate number keys to match with the center of all cards
 def num_calibration():
-    global card_1_pos, card_2_pos, card_3_pos, card_4_pos
-
     print("Calibration mode")
+    print('Left click on each of the cards to set their position')
     with mouse.Listener(on_click=calibration_on_click) as listener:
         listener.join()
 
 def calibration_on_click(x, y, button, pressed):
-    global click_count
+    global click_count, card_1_pos, card_2_pos, card_3_pos, card_4_pos
 
-    print()
     # on release
     if not pressed:
         match button.name:
             case 'left':
-                print(click_count)
+                match click_count:
+                    case 0:
+                        print(f'1st card set to {x}, {y}')
+                        card_1_pos = (x, y)
+                    case 1:
+                        print(f'2nd card set to {x}, {y}')
+                        card_2_pos = (x, y)
+                    case 2: 
+                        print(f'3rd card set to {x}, {y}')
+                        card_3_pos = (x, y)
+                    case 3:
+                        print(f'4th card set to {x}, {y}')
+                        print('Calibration finished!')
+                        card_4_pos = (x, y)
+                        click_count = 0
+                        return False
                 click_count += 1
             case 'right':
+                # This stops the mouse event listener
                 click_count = 0
-                return False # This stops the mouse event listener
+                return False 
 
 
 def main():
